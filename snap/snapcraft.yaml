@@ -1,0 +1,135 @@
+name: komikku
+base: core22
+adopt-info: komikku
+grade: stable
+confinement: strict
+compression: lzo
+architectures:
+  - build-on: amd64
+  - build-on: armhf
+  - build-on: arm64
+
+layout:
+  /usr/lib/$CRAFT_ARCH_TRIPLET/webkitgtk-6.0:
+    bind: $SNAP/webkitgtk-platform/usr/lib/$CRAFT_ARCH_TRIPLET/webkitgtk-6.0
+
+parts:
+  brotli:
+    plugin: python
+    source: .
+    source-tag: 'v1.0.9' 
+    python-packages:
+      - brotli==1.0.9
+      - beautifulsoup4==4.12.2
+      - cffi==1.15.1
+      - colorthief==0.2.1
+      - dateparser==1.2.0
+      - emoji==2.2.0
+      - file-magic==0.4.0
+      - keyring==24.2.0
+      - lxml==4.9.3
+      - natsort==7.1.1
+      - piexif==1.1.3
+      - Pillow==7.1.2
+      - pure-protobuf==3.0.0
+      - rarfile==4.0
+      - requests==2.28.2
+      - setuptools-rust==1.4.1
+      - Unidecode==1.1.1
+    prime:
+      - -usr/lib/*/*/pip*
+      - -usr/lib/*/*/_dist*
+      - -usr/lib/*/*/dist*
+      - -usr/lib/*/*/setup*
+      - -usr/lib/*/*/wheel*
+      - -usr/lib/*/*/pkg*
+      - -usr/lib/python3/dist-packages/tests
+      - -pyvenv.cfg
+      - -bin
+      - -lib
+      - -lib64
+      - -include
+    organize:
+      lib/python3.10/site-packages: usr/lib/python3/dist-packages
+
+
+  rustup:
+    plugin: rust
+    source: .
+    rust-channel: "1.76"
+    override-build: ""
+    override-prime: ""
+
+  komikku:
+    after: [ rustup]
+    source: https://codeberg.org/valos/Komikku.git
+    source-tag: 'v1.39.0'
+    source-depth: 1
+    plugin: meson
+    parse-info: [usr/share/metainfo/info.febvre.Komikku.appdata.xml]
+    meson-parameters:
+      - --prefix=/snap/komikku/current/usr
+      - -Dprofile=default
+    build-environment:
+      - PKG_CONFIG_PATH: /snap/webkitgtk-6-gnome-2204-sdk/current/usr/lib/$CRAFT_ARCH_TRIPLET/pkgconfig:$PKG_CONFIG_PATH
+      - PATH: ${HOME}/.cargo/bin:/snap/webkitgtk-6-gnome-2204-sdk/current/usr/bin:${PATH}
+      - PYTHONPATH: $CRAFT_STAGE/usr/lib/python3/dist-packages:$PYTHONPATH
+    build-snaps:
+      - webkitgtk-6-gnome-2204/latest/stable
+      - blueprint-compiler
+    override-build: |
+      craftctl default
+      sed -e '1c#!/usr/bin/env python3' -i ${CRAFT_PART_INSTALL}/snap/komikku/current/usr/bin/komikku
+    organize:
+      snap/komikku/current: .
+
+  deps:
+    plugin: nil
+    stage-packages:
+      - libmagic1
+      - gnustep-base-runtime
+      - unar
+      - libobjc4
+    prime:
+      - etc/magic
+      - etc/magic.mime
+      - usr/bin/unar
+      - usr/lib/*/libobj*
+      - usr/lib/libgnustep-base.so.1.28
+      - usr/lib/libgnustep-base.so.1.28.0
+      - usr/lib/*/libmagic.so.1
+      - usr/lib/*/libmagic.so.1.0.0
+      - usr/lib/file/magic.mgc
+      - usr/share/file/magic.mgc
+      - usr/share/misc/magic.mgc
+      - usr/share/misc/magic
+  
+plugs:
+  webkitgtk-6-gnome-2204:
+    interface: content
+    target: $SNAP/webkitgtk-platform
+    default-provider: webkitgtk-6-gnome-2204
+
+slots:
+  komikku:
+    interface: dbus
+    bus: session
+    name: info.febvre.Komikku
+
+apps:
+  komikku:
+    command: usr/bin/komikku
+    extensions: [ gnome ]
+    environment:
+      PYTHONPATH: $SNAP/usr/lib/python3.10/site-packages:$PYTHONPATH
+      LD_LIBRARY_PATH: $SNAP/webkitgtk-platform/usr/lib:$SNAP/webkitgtk-platform/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH
+      GI_TYPELIB_PATH: $SNAP/webkitgtk-platform/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/girepository-1.0:$GI_TYPELIB_PATH
+      MAGIC: $SNAP/usr/share/misc/magic
+    plugs:
+      - home
+      - network
+      - network-status
+      - network-bind
+      - password-manager-service
+      - unity7
+    common-id: info.febvre.Komikku
