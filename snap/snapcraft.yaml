@@ -17,7 +17,6 @@ parts:
   brotli:
     plugin: python
     source: .
-    source-tag: 'v1.0.9' 
     python-packages:
       - brotli==1.0.9
       - beautifulsoup4==4.12.2
