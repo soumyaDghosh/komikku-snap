@@ -15,8 +15,10 @@ jobs:
       - name: Checkout this repo
         uses: actions/checkout@v4
       - name: Run desktop-snaps action
-        uses: ubuntu/desktop-snaps@UDENG-961-optionally_take_user_as_input
+        uses: snapcrafters/ci/sync-version@main
         with:
-          user: soumyaDghosh
           token: ${{ secrets.GITHUB_TOKEN }}
-          repo: ${{ github.repository }}
+          branch: "main"
+          update-script: |
+            VERSION=$(git -c 'versionsort.suffix=-' ls-remote --refs --sort='v:refname' --tags https://codeberg.org/valos/Komikku.git | tail --lines=1 | cut --delimiter='/' --fields=3)
+            yq -i '.parts.komikku.source-tag = \"$VERSION\"' snap/snapcraft.yaml
