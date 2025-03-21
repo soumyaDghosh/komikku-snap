@@ -21,4 +21,4 @@ jobs:
           branch: "main"
           update-script: |
             VERSION=$(git -c 'versionsort.suffix=-' ls-remote --refs --sort='v:refname' --tags https://codeberg.org/valos/Komikku.git | tail --lines=1 | cut --delimiter='/' --fields=3)
-            yq -i '.parts.komikku.source-tag = \"$VERSION\"' snap/snapcraft.yaml
+            yq -i ".parts.komikku.source-tag = \"$VERSION\"" snap/snapcraft.yaml

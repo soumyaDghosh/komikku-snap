@@ -4,15 +4,13 @@ adopt-info: komikku
 grade: stable
 confinement: strict
 compression: lzo
-platformss:
+platforms:
   amd64:
   arm64:
   armhf:
-
 layout:
   /usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/webkitgtk-6.0:
     bind: $SNAP/webkitgtk-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/webkitgtk-6.0
-
 parts:
   python-deps:
     plugin: python
@@ -50,19 +48,16 @@ parts:
       - -include
     organize:
       lib/python3.12/site-packages: usr/lib/python3/dist-packages
-
-
   rustup:
     plugin: rust
     source: .
     rust-channel: "1.76"
     override-build: ""
     override-prime: ""
-
   komikku:
-    after: [ rustup, python-deps ]
+    after: [rustup, python-deps]
     source: https://codeberg.org/valos/Komikku.git
-    source-tag: 'v1.39.0'
+    source-tag: ''
     source-depth: 1
     plugin: meson
     parse-info: [usr/share/metainfo/info.febvre.Komikku.appdata.xml]
@@ -81,7 +76,6 @@ parts:
       sed -e '1c#!/usr/bin/env python3' -i ${CRAFT_PART_INSTALL}/snap/komikku/current/usr/bin/komikku
     organize:
       snap/komikku/current: .
-
   deps:
     plugin: nil
     stage-packages:
@@ -102,23 +96,20 @@ parts:
       - usr/share/file/magic.mgc
       - usr/share/misc/magic.mgc
       - usr/share/misc/magic
-  
 plugs:
   webkitgtk-6-gnome-2404:
     interface: content
     target: $SNAP/webkitgtk-platform
     default-provider: webkitgtk-6-gnome-2404
-
 slots:
   komikku:
     interface: dbus
     bus: session
     name: info.febvre.Komikku
-
 apps:
   komikku:
     command: usr/bin/komikku
-    extensions: [ gnome ]
+    extensions: [gnome]
     environment:
       PYTHONPATH: $SNAP/usr/lib/python3.10/site-packages:$PYTHONPATH
       LD_LIBRARY_PATH: $SNAP/webkitgtk-platform/usr/lib:$SNAP/webkitgtk-platform/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$LD_LIBRARY_PATH
