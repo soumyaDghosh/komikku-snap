@@ -59,7 +59,7 @@ parts:
   komikku:
     after: [rustup, python-deps]
     source: https://codeberg.org/valos/Komikku.git
-    source-tag: 'v1.99.0'
+    source-tag: 'v1.100.0'
     source-depth: 1
     plugin: meson
     parse-info: [usr/share/metainfo/info.febvre.Komikku.appdata.xml]
